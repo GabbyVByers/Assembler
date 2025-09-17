@@ -4,11 +4,19 @@ STR	r2 LIT:69420
 LDX	r3 r0
 label MYSUBROUTINE_0
 STX	r0 r2
+
+
 MOV	r1 r2
+
+
+
 SHR	r1
 var xx
 var yy[69]
 SHL	r1
+
+
+
 ADI	r2 LBL:MYSUBROUTINE_0
 ADD	r3 r2
 SUB	r0 r1
@@ -18,11 +26,14 @@ ORR	r2 r3
 XOR	r3 r2
 CMP	r0 r1
 KIN	r1
-DRW
+DRW FLAG_ZERO
 label MYSUBROUTINE_2
 JMP VAR:b
 JSR LBL:MYSUBROUTINE_0
 RTS
+
+// this is a comment
+
 GSP	r2
 PSH	r3
 POP	r0
@@ -30,4 +41,6 @@ var a
 var aaa
 var b[3]
 var bbb[33]
-label MYSUBROUTINE_3
+
+
+// another comment

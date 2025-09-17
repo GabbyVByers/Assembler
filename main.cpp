@@ -5,6 +5,8 @@
 #include <vector>
 #include <sstream>
 #include <cassert>
+#include <algorithm>
+#include <cctype>
 
 struct SourceLine
 {
@@ -32,6 +34,12 @@ struct SourceLine
 
 		if (type == "ASM")
 		{
+			if (argument == "null") {
+				assert(memorySize == 1);
+			}
+			else {
+				assert(memorySize == 2);
+			}
 			std::cout << " Inst: " << inst;
 			std::cout << " rD: " << dst;
 			std::cout << " rS: " << src;
@@ -60,7 +68,7 @@ struct SourceLine
 
 		if (type == "LBL")
 		{
-			std::cout << " Variable Name: " << labelName;
+			std::cout << " Label Name: " << labelName;
 			std::cout << " Mem Size: " << memorySize;
 			std::cout << " Address: " << memoryAddress;
 			assert(inst == "null");
@@ -73,6 +81,58 @@ struct SourceLine
 		}
 	}
 };
+
+void assertNoDuplicateVariableDeclarations(std::vector<SourceLine>& sourceLines)
+{
+	int numSourceLines = sourceLines.size();
+	for (int i = 0; i < numSourceLines; i++)
+	{
+		SourceLine& line = sourceLines[i];
+		if (line.type != "VAR") continue;
+		std::string& name = line.variableName;
+
+		for (int j = 0; j < numSourceLines; j++)
+		{
+			SourceLine& otherLine = sourceLines[j];
+			if (otherLine.type != "VAR") continue;
+			std::string& otherName = otherLine.variableName;
+
+			if (name == otherName)
+			{
+				if (i != j)
+				{
+					assert(false);
+				}
+			}
+		}
+	}
+}
+
+void assertNoDuplicateLabelDeclarations(std::vector<SourceLine>& sourceLines)
+{
+	int numSourceLines = sourceLines.size();
+	for (int i = 0; i < numSourceLines; i++)
+	{
+		SourceLine& line = sourceLines[i];
+		if (line.type != "LBL") continue;
+		std::string& name = line.labelName;
+
+		for (int j = 0; j < numSourceLines; j++)
+		{
+			SourceLine& otherLine = sourceLines[j];
+			if (otherLine.type != "LBL") continue;
+			std::string& otherName = otherLine.labelName;
+
+			if (name == otherName)
+			{
+				if (i != j)
+				{
+					assert(false);
+				}
+			}
+		}
+	}
+}
 
 void assertValidFlag(std::string token)
 {
@@ -269,6 +329,11 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 	assert(false);
 }
 
+bool isOnlyWhitespace(std::string& line)
+{
+	return std::all_of(line.begin(), line.end(), [](unsigned char ch) { return std::isspace(ch); });
+}
+
 int main()
 {
 	std::vector<std::string> lines;
@@ -283,14 +348,20 @@ int main()
 	std::vector<SourceLine> sourceLines;
 	for (std::string& line : lines)
 	{
+		if (isOnlyWhitespace(line)) continue;
+		if (line.substr(0, 2) == "//") continue;
 		sourceLines.push_back(processRawSourceLine(line));
 	}
 
+	assertNoDuplicateVariableDeclarations(sourceLines);
+	assertNoDuplicateLabelDeclarations(sourceLines);
 	for (SourceLine& line : sourceLines)
 	{
 		line.print();
 	}
 
+
+	
 	return 0;
 }
 
