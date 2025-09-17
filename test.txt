@@ -1,6 +1,6 @@
 LDI	r0 LBL:MYSUBROUTINE_0
 LDR	r1 VAR:a
-STR	r2 LIT:69420
+STR	r2      LIT:69420
 LDX	r3 r0
 label MYSUBROUTINE_0
 STX	r0 r2
@@ -11,8 +11,7 @@ MOV	r1 r2
 
 
 SHR	r1
-var xx
-var yy[69]
+
 SHL	r1
 
 
@@ -41,6 +40,9 @@ var a
 var aaa
 var b[3]
 var bbb[33]
+
+var xx
+var yy[69]
 
 
 // another comment

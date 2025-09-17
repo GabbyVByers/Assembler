@@ -134,6 +134,23 @@ void assertNoDuplicateLabelDeclarations(std::vector<SourceLine>& sourceLines)
 	}
 }
 
+void assertAllVariableDeclarationsAreAtTheEndOfTheSourceCode(std::vector<SourceLine>& sourceLines)
+{
+	bool haveSeenAVariable = false;
+	for (SourceLine& line : sourceLines)
+	{
+		if (line.type == "VAR")
+		{
+			haveSeenAVariable = true;
+		}
+
+		if ((line.type != "VAR") && (haveSeenAVariable))
+		{
+			assert(false);
+		}
+	}
+}
+
 void assertValidFlag(std::string token)
 {
 	assert((token == "FLAG_ZERO")          ||
@@ -355,12 +372,19 @@ int main()
 
 	assertNoDuplicateVariableDeclarations(sourceLines);
 	assertNoDuplicateLabelDeclarations(sourceLines);
+	assertAllVariableDeclarationsAreAtTheEndOfTheSourceCode(sourceLines);
+
+	unsigned int currentAddress = 0;
+	for (SourceLine& line : sourceLines)
+	{
+		line.memoryAddress = currentAddress;
+		currentAddress += line.memorySize;
+	}
+
 	for (SourceLine& line : sourceLines)
 	{
 		line.print();
 	}
-
-
 	
 	return 0;
 }
