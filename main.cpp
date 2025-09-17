@@ -172,6 +172,7 @@ void assertValidArgument(std::string token)
 {
 	std::string subToken = token.substr(0, 4);
 	assert((subToken == "VAR:") || (subToken == "LBL:") || (subToken == "LIT:"));
+	assert(token.size() > 4);
 }
 
 std::vector<std::string> tokenize(const std::string& input)
@@ -373,12 +374,52 @@ int main()
 	assertNoDuplicateVariableDeclarations(sourceLines);
 	assertNoDuplicateLabelDeclarations(sourceLines);
 	assertAllVariableDeclarationsAreAtTheEndOfTheSourceCode(sourceLines);
+	// assertNoLabelSharesANameWithAVariable(sourceLines) // implement me
 
 	unsigned int currentAddress = 0;
 	for (SourceLine& line : sourceLines)
 	{
 		line.memoryAddress = currentAddress;
 		currentAddress += line.memorySize;
+	}
+
+	for (SourceLine& line : sourceLines)
+	{
+		if (line.argument == "null") continue;
+		std::string argumentType = line.argument.substr(0, 3);
+	
+		if (argumentType == "LIT")
+		{
+			std::string realArgument = line.argument.substr(4, line.argument.size() - 4);
+			assert(realArgument.size() >= 1);
+			line.argument = realArgument;
+		}
+
+		if (argumentType == "VAR")
+		{
+			std::string targetVariable = line.argument.substr(4, line.argument.size() - 4);
+
+			for (SourceLine& otherLine : sourceLines)
+			{
+				if ((otherLine.type == "VAR") && (otherLine.variableName == targetVariable))
+				{
+					line.argument = std::to_string(otherLine.memoryAddress);
+				}
+			}
+		}
+
+		if (argumentType == "LBL")
+		{
+			std::string targetLabel = line.argument.substr(4, line.argument.size() - 4);
+
+			for (SourceLine& otherLine : sourceLines)
+			{
+				if ((otherLine.type == "LBL") && (otherLine.labelName == targetLabel))
+				{
+					line.argument = std::to_string(otherLine.memoryAddress);
+				}
+			}
+		}
 	}
 
 	for (SourceLine& line : sourceLines)
