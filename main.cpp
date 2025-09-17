@@ -1,14 +1,8 @@
 
-
-
-
 #include <string>
 #include <vector>
 #include <sstream>
 #include <cassert>
-
-
-
 
 struct SourceLine
 {
@@ -94,14 +88,14 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 			sourceLine.variableName = secondToken;
 		}
 
-		return;
+		return sourceLine;
 	}
 
 	if (tokens[0] == "label")
 	{
 		assert(tokens.size() == 2);
 		sourceLine.labelAlias = tokens[1];
-		return;
+		return sourceLine;
 	}
 
 	if ((tokens[0] == "LDI") ||
@@ -127,7 +121,7 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		}
 
 		sourceLine.memorySize = 2;
-		return;
+		return sourceLine;
 	}
 
 	if ((tokens[0] == "LDX") ||
@@ -157,7 +151,7 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		}
 
 		sourceLine.memorySize = 1;
-		return;
+		return sourceLine;
 	}
 
 	if ((tokens[0] == "SHR") ||
@@ -184,7 +178,7 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		}
 
 		sourceLine.memorySize = 1;
-		return;
+		return sourceLine;
 	}
 
 	if ((tokens[0] == "DRW") ||
@@ -205,7 +199,7 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		}
 
 		sourceLine.memorySize = 1;
-		return;
+		return sourceLine;
 	}
 
 	if ((tokens[0] == "JMP") ||
@@ -228,7 +222,7 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		}
 
 		sourceLine.memorySize = 2;
-		return;
+		return sourceLine;
 	}
 
 	assert(false);
