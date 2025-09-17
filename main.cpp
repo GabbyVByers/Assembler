@@ -1,4 +1,6 @@
 
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -18,10 +20,58 @@ struct SourceLine
 	std::string flag = "null";      // "FLAG_ZERO" or "FLAG_EQUAL" or "FLAG_GREATER_THAN" or "FLAG_LESS_THAN" or "null"
 
 	// Label
-	std::string labelAlias = "null";
+	std::string labelName = "null";
 
 	// Variable
 	std::string variableName = "null";
+
+	void print()
+	{
+		assert((type == "ASM") || (type == "VAR") || (type == "LBL"));
+		std::cout << "Type: " << type;
+
+		if (type == "ASM")
+		{
+			std::cout << " Inst: " << inst;
+			std::cout << " rD: " << dst;
+			std::cout << " rS: " << src;
+			std::cout << " Arg: " << argument;
+			std::cout << " Flag: " << flag;
+			std::cout << " Mem Size: " << memorySize;
+			std::cout << " Address: " << memoryAddress;
+			assert(labelName == "null");
+			assert(variableName == "null");
+			std::cout << "\n";
+		}
+
+		if (type == "VAR")
+		{
+			std::cout << " Variable Name: " << variableName;
+			std::cout << " Mem Size: " << memorySize;
+			std::cout << " Address: " << memoryAddress;
+			assert(inst == "null");
+			assert(dst == "null");
+			assert(src == "null");
+			assert(argument == "null");
+			assert(flag == "null");
+			assert(labelName == "null");
+			std::cout << "\n";
+		}
+
+		if (type == "LBL")
+		{
+			std::cout << " Variable Name: " << labelName;
+			std::cout << " Mem Size: " << memorySize;
+			std::cout << " Address: " << memoryAddress;
+			assert(inst == "null");
+			assert(dst == "null");
+			assert(src == "null");
+			assert(argument == "null");
+			assert(flag == "null");
+			assert(variableName == "null");
+			std::cout << "\n";
+		}
+	}
 };
 
 void assertValidFlag(std::string token)
@@ -75,12 +125,14 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		if (openBraketIndex != std::string::npos)
 		{
 			assert(secondToken.find(']') != std::string::npos);
-			assert(secondToken.find('[') < secondToken.find(']'));
+			assert(secondToken.find('[') < secondToken.find(']') - 1);
 			assert(secondToken.find(']') == secondToken.size() - 1);
 			int sizeCharacterLength = secondToken.size() - openBraketIndex - 2;
 			std::string sizeSubString = secondToken.substr(openBraketIndex + 1, sizeCharacterLength);
 			sourceLine.memorySize = std::stoul(sizeSubString);
+			assert(sourceLine.memorySize != 0);
 			sourceLine.variableName = secondToken.substr(0, openBraketIndex);
+			assert(sourceLine.variableName != "");
 		}
 		else
 		{
@@ -94,7 +146,8 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 	if (tokens[0] == "label")
 	{
 		assert(tokens.size() == 2);
-		sourceLine.labelAlias = tokens[1];
+		sourceLine.type = "LBL";
+		sourceLine.labelName = tokens[1];
 		return sourceLine;
 	}
 
@@ -106,21 +159,19 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		assert((tokens.size() == 3) || (tokens.size() == 4));
 		assertValidRegister(tokens[1]);
 		assertValidArgument(tokens[2]);
-		if (tokens.size() == 4)
-		{
+		if (tokens.size() == 4) {
 			assertValidFlag(tokens[3]);
 		}
 
 		sourceLine.inst = tokens[0];
 		sourceLine.dst = tokens[1];
 		sourceLine.argument = tokens[2];
-
-		if (tokens.size() == 4)
-		{
+		if (tokens.size() == 4) {
 			sourceLine.flag = tokens[3];
 		}
 
 		sourceLine.memorySize = 2;
+		sourceLine.type = "ASM";
 		return sourceLine;
 	}
 
@@ -131,26 +182,25 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		(tokens[0] == "AND") ||
 		(tokens[0] == "ORR") ||
 		(tokens[0] == "XOR") ||
-		(tokens[0] == "CMP"))
+		(tokens[0] == "CMP") ||
+		(tokens[0] == "MOV"))
 	{
 		assert((tokens.size() == 3) || (tokens.size() == 4));
 		assertValidRegister(tokens[1]);
 		assertValidRegister(tokens[2]);
-		if (tokens.size() == 4)
-		{
+		if (tokens.size() == 4) {
 			assertValidFlag(tokens[3]);
 		}
 
 		sourceLine.inst = tokens[0];
 		sourceLine.dst = tokens[1];
 		sourceLine.src = tokens[2];
-
-		if (tokens.size() == 4)
-		{
+		if (tokens.size() == 4) {
 			sourceLine.flag = tokens[3];
 		}
 
 		sourceLine.memorySize = 1;
+		sourceLine.type = "ASM";
 		return sourceLine;
 	}
 
@@ -163,21 +213,18 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 	{
 		assert((tokens.size() == 2) || (tokens.size() == 3));
 		assertValidRegister(tokens[1]);
-
-		if (tokens.size() == 3)
-		{
+		if (tokens.size() == 3) {
 			assertValidFlag(tokens[2]);
 		}
 
 		sourceLine.inst = tokens[0];
 		sourceLine.dst = tokens[1];
-
-		if (tokens.size() == 3)
-		{
+		if (tokens.size() == 3) {
 			sourceLine.flag = tokens[2];
 		}
 
 		sourceLine.memorySize = 1;
+		sourceLine.type = "ASM";
 		return sourceLine;
 	}
 
@@ -185,20 +232,17 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 		(tokens[0] == "RTS"))
 	{
 		assert((tokens.size() == 1) || (tokens.size() == 2));
-
-		if (tokens.size() == 2)
-		{
+		if (tokens.size() == 2) {
 			assertValidFlag(tokens[1]);
 		}
 
 		sourceLine.inst = tokens[0];
-
-		if (tokens.size() == 2)
-		{
+		if (tokens.size() == 2) {
 			sourceLine.flag = tokens[1];
 		}
 
 		sourceLine.memorySize = 1;
+		sourceLine.type = "ASM";
 		return sourceLine;
 	}
 
@@ -207,21 +251,18 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 	{
 		assert((tokens.size() == 2) || (tokens.size() == 3));
 		assertValidArgument(tokens[1]);
-
-		if (tokens.size() == 3)
-		{
+		if (tokens.size() == 3) {
 			assertValidFlag(tokens[2]);
 		}
 
 		sourceLine.inst = tokens[0];
 		sourceLine.argument = tokens[1];
-
-		if (tokens.size() == 3)
-		{
+		if (tokens.size() == 3) {
 			sourceLine.flag = tokens[2];
 		}
 
 		sourceLine.memorySize = 2;
+		sourceLine.type = "ASM";
 		return sourceLine;
 	}
 
@@ -230,7 +271,26 @@ SourceLine processRawSourceLine(std::string rawSourceLine)
 
 int main()
 {
+	std::vector<std::string> lines;
+	std::ifstream file("test.txt");
+	std::string line;
+	while (std::getline(file, line))
+	{
+		lines.push_back(line);
+	}
+	file.close();
 
+	std::vector<SourceLine> sourceLines;
+	for (std::string& line : lines)
+	{
+		sourceLines.push_back(processRawSourceLine(line));
+	}
+
+	for (SourceLine& line : sourceLines)
+	{
+		line.print();
+	}
+
+	return 0;
 }
-
 
