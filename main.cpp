@@ -1,8 +1,12 @@
 
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <cassert>
+#include <algorithm>
+#include <cctype>
 
 struct SourceLine
 {
@@ -18,6 +22,134 @@ struct SourceLine
 	std::string variableName = "null";
 	std::string labelName    = "null";
 };
+
+void assertCharacterIsNumber(char ch)
+{
+	assert((ch == '0') ||
+		   (ch == '1') ||
+		   (ch == '2') ||
+		   (ch == '3') ||
+		   (ch == '4') ||
+		   (ch == '5') ||
+		   (ch == '6') ||
+		   (ch == '7') ||
+		   (ch == '8') ||
+		   (ch == '9'));
+}
+
+void assertAssemblyAndMemoryCoherence(std::vector<SourceLine>& sourceLines)
+{
+	for (SourceLine& line : sourceLines)
+	{
+		if (line.type == "ASM")
+		{
+			if (line.argument == "null")
+			{
+				assert(line.memorySize == 1);
+			}
+			if (line.argument != "null")
+			{
+				assert(line.memorySize == 2);
+			}
+		}
+	}
+	for (SourceLine& line : sourceLines)
+	{
+		if (line.type == "ASM")
+		{
+			assert(line.inst != "null");
+		}
+		if (line.type != "ASM")
+		{
+			assert(line.inst == "null");
+			assert(line.dst == "null");
+			assert(line.src == "null");
+			assert(line.argument == "null");
+			assert(line.flag == "null");
+		}
+	}
+}
+
+void assertVariableDeclarationsAreEndOfSourceFile(std::vector<SourceLine>& sourceLines)
+{
+	int numSourceLines = sourceLines.size();
+
+	bool haveSeenAVariable = false;
+	for (int i = 0; i < numSourceLines; i++)
+	{
+		SourceLine& sourceLine = sourceLines[i];
+		if (sourceLine.type == "VAR")
+		{
+			haveSeenAVariable = true;
+		}
+
+		if (haveSeenAVariable)
+		{
+			if (sourceLine.type != "VAR")
+			{
+				assert(false);
+			}
+		}
+	}
+}
+
+void assertNoDuplicateVariableDeclarations(std::vector<SourceLine>& sourceLines)
+{
+	int numSourceLines = sourceLines.size();
+
+	for (int i = 0; i < numSourceLines; i++)
+	{
+		SourceLine& sourceLine = sourceLines[i];
+		if (sourceLine.type != "VAR") continue;
+		std::string name = sourceLine.variableName;
+		assert(name != "null");
+
+		for (int j = 0; j < numSourceLines; j++)
+		{
+			SourceLine& otherSourceLine = sourceLines[j];
+			if (otherSourceLine.type != "VAR") continue;
+			std::string otherName = otherSourceLine.variableName;
+			assert(otherName != "null");
+
+			if (name == otherName)
+			{
+				if (i != j)
+				{
+					assert(false);
+				}
+			}
+		}
+	}
+}
+
+void assertNoDuplicateLabels(std::vector<SourceLine>& sourceLines)
+{
+	int numSourceLines = sourceLines.size();
+
+	for (int i = 0; i < numSourceLines; i++)
+	{
+		SourceLine& sourceLine = sourceLines[i];
+		if (sourceLine.type != "LBL") continue;
+		std::string name = sourceLine.labelName;
+		assert(name != "null");
+
+		for (int j = 0; j < numSourceLines; j++)
+		{
+			SourceLine& otherSourceLine = sourceLines[j];
+			if (otherSourceLine.type != "LBL") continue;
+			std::string otherName = otherSourceLine.labelName;
+			assert(otherName != "null");
+
+			if (name == otherName)
+			{
+				if (i != j)
+				{
+					assert(false);
+				}
+			}
+		}
+	}
+}
 
 void assertTokenIsValidRegister(std::string token)
 {
@@ -82,6 +214,7 @@ SourceLine processTokens(std::vector<std::string> tokens)
 			std::string trueVariableName = tokens[1].substr(0, indexOpenBraket);
 			assert(memorySizeString.size() != 0);
 			assert(trueVariableName.size() != 0);
+			for (char ch : memorySizeString) { assertCharacterIsNumber(ch); }
 
 			sourceLine.variableName = trueVariableName;
 			sourceLine.memorySize = std::stoul(memorySizeString);
@@ -226,6 +359,85 @@ SourceLine processTokens(std::vector<std::string> tokens)
 
 int main()
 {
+	std::vector<std::string> lines;
+	std::ifstream file("test.txt");
+	std::string line;
+	while (std::getline(file, line))
+	{
+		lines.push_back(line);
+	}
+	file.close();
 
+	std::vector<SourceLine> sourceLines;
+	for (std::string& line : lines)
+	{
+		std::vector<std::string> tokens = tokenize(line);
+		if (tokens.size() == 0) continue;
+		if (tokens[0].substr(0, 2) == "//") continue;
+		sourceLines.push_back(processTokens(tokens));
+	}
+
+	assertAssemblyAndMemoryCoherence(sourceLines);
+	assertVariableDeclarationsAreEndOfSourceFile(sourceLines);
+	assertNoDuplicateVariableDeclarations(sourceLines);
+	assertNoDuplicateLabels(sourceLines);
+
+	unsigned int currentAddress = 0;
+	for (SourceLine& line : sourceLines)
+	{
+		line.memoryAddress = currentAddress;
+		currentAddress += line.memorySize;
+	}
+
+	for (SourceLine& line : sourceLines)
+	{
+		if (line.argument == "null") continue;
+
+		if (line.argument[0] == '#')
+		{
+			std::string trueArgument = line.argument.substr(1, line.argument.size() - 1);
+			assert((line.inst == "LDI") || (line.inst == "ADI"));
+			assert(trueArgument.size() >= 1);
+			for (char& ch : trueArgument) { assertCharacterIsNumber(ch); }
+			line.argument = trueArgument;
+			continue;
+		}
+
+		if (line.argument[0] == '&')
+		{
+			std::string targetVariable = line.argument.substr(1, line.argument.size() - 1);
+			assert((line.inst == "LDI") || (line.inst == "LDR") || (line.inst == "STR"));
+			assert(targetVariable.size() >= 1);
+
+			for (SourceLine& otherLine : sourceLines)
+			{
+				if (otherLine.type != "VAR") continue;
+				assert(otherLine.variableName != "null");
+				if (otherLine.variableName == targetVariable)
+				{
+					line.argument = std::to_string(otherLine.memoryAddress);
+				}
+			}
+		}
+
+		if (line.argument[0] == '.')
+		{
+			std::string targetLabel = line.argument.substr(1, line.argument.size() - 1);
+			assert((line.inst == "JMP") || (line.inst == "JSR"));
+			assert(targetLabel.size() >= 1);
+
+			for (SourceLine& otherLine : sourceLines)
+			{
+				if (otherLine.type != "LBL") continue;
+				assert(otherLine.labelName != "null");
+				if (otherLine.labelName == targetLabel)
+				{
+					line.argument = std::to_string(otherLine.memoryAddress);
+				}
+			}
+		}
+	}
+
+	return 0;
 }
 
