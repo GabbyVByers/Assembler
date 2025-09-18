@@ -19,6 +19,34 @@ struct SourceLine
 	std::string labelName    = "null";
 };
 
+void assertTokenIsValidRegister(std::string token)
+{
+	assert((token == "r0") ||
+		   (token == "r1") ||
+		   (token == "r2") ||
+		   (token == "r3"));
+}
+
+void assertTokenIsValidArgument(std::string token)
+{
+	assert(token.size() >= 2);
+	assert((token[0] == '#') ||
+		   (token[0] == '&') ||
+		   (token[0] == '.'));
+}
+
+void assertTokenIsValidFlag(std::string token)
+{
+	assert((token == "FLAG_ZERO")          ||
+		   (token == "FLAG_EQUAL")         ||
+		   (token == "FLAG_GREATER_THAN")  ||
+		   (token == "FLAG_LESS_THAN")     ||
+		   (token == "!FLAG_ZERO")         ||
+		   (token == "!FLAG_EQUAL")        ||
+		   (token == "!FLAG_GREATER_THAN") ||
+		   (token == "!FLAG_LESS_THAN"));
+}
+
 std::vector<std::string> tokenize(const std::string& input)
 {
 	std::vector<std::string> result;
@@ -76,6 +104,19 @@ SourceLine processTokens(std::vector<std::string> tokens)
 		sourceLine.type = "LBL";
 		sourceLine.labelName = tokens[1];
 		return sourceLine;
+	}
+
+	if ((tokens[0] == "LDI") ||
+		(tokens[0] == "LDR") ||
+		(tokens[0] == "STR") ||
+		(tokens[0] == "ADI"))
+	{
+		assert((tokens.size() == 3) || (tokens.size() == 4));
+		assertTokenIsValidRegister(tokens[1]);
+		assertTokenIsValidArgument(tokens[2]);
+		if (tokens.size() == 4) {
+			assertTokenIsValidFlag(tokens[3]);
+		}
 	}
 
 	assert(false);
