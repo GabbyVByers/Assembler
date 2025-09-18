@@ -392,6 +392,7 @@ int main()
 	for (SourceLine& line : sourceLines)
 	{
 		if (line.argument == "null") continue;
+		assert(line.type == "ASM");
 
 		if (line.argument[0] == '#')
 		{
@@ -416,6 +417,7 @@ int main()
 				if (otherLine.variableName == targetVariable)
 				{
 					line.argument = std::to_string(otherLine.memoryAddress);
+					goto doubleContinue;
 				}
 			}
 		}
@@ -433,8 +435,94 @@ int main()
 				if (otherLine.labelName == targetLabel)
 				{
 					line.argument = std::to_string(otherLine.memoryAddress);
+					goto doubleContinue;
 				}
 			}
+		}
+
+	doubleContinue:
+		continue;
+	}
+
+	std::ofstream out("compiled_binary.bin", std::ios::binary);
+	for (SourceLine& line : sourceLines)
+	{
+		assert(line.type != "null");
+		assert(sizeof(unsigned short) == 2);
+
+		if (line.type == "ASM")
+		{
+			unsigned short machineCode = 0b0000000000000000;
+
+			if (line.inst == "LDI") { machineCode += 0b0000000000000000; }
+			if (line.inst == "LDR") { machineCode += 0b0000000100000000; }
+			if (line.inst == "STR") { machineCode += 0b0000001000000000; }
+			if (line.inst == "LDX") { machineCode += 0b0000001100000000; }
+			if (line.inst == "STX") { machineCode += 0b0000010000000000; }
+			if (line.inst == "MOV") { machineCode += 0b0000010100000000; }
+			if (line.inst == "SHR") { machineCode += 0b0000011000000000; }
+			if (line.inst == "SHL") { machineCode += 0b0000011100000000; }
+			if (line.inst == "ADI") { machineCode += 0b0000100000000000; }
+			if (line.inst == "ADD") { machineCode += 0b0000100100000000; }
+			if (line.inst == "SUB") { machineCode += 0b0000101000000000; }
+			if (line.inst == "AND") { machineCode += 0b0000101100000000; }
+			if (line.inst == "ORR") { machineCode += 0b0000110000000000; }
+			if (line.inst == "XOR") { machineCode += 0b0000110100000000; }
+			if (line.inst == "CMP") { machineCode += 0b0000111000000000; }
+			if (line.inst == "KIN") { machineCode += 0b0000111100000000; }
+			if (line.inst == "DRW") { machineCode += 0b0001000000000000; }
+			if (line.inst == "JMP") { machineCode += 0b0001000100000000; }
+			if (line.inst == "JSR") { machineCode += 0b0001001000000000; }
+			if (line.inst == "RTS") { machineCode += 0b0001001100000000; }
+			if (line.inst == "GSP") { machineCode += 0b0001010000000000; }
+			if (line.inst == "POP") { machineCode += 0b0001010100000000; }
+			if (line.inst == "PSH") { machineCode += 0b0001011000000000; }
+
+			if (line.dst == "r0")   { machineCode += 0b0000000000000000; }
+			if (line.dst == "r1")   { machineCode += 0b0000000001000000; }
+			if (line.dst == "r2")   { machineCode += 0b0000000010000000; }
+			if (line.dst == "r3")   { machineCode += 0b0000000011000000; }
+								    
+			if (line.src == "r0")   { machineCode += 0b0000000000000000; }
+			if (line.src == "r1")   { machineCode += 0b0000000000010000; }
+			if (line.src == "r2")   { machineCode += 0b0000000000100000; }
+			if (line.src == "r3")   { machineCode += 0b0000000000110000; }
+
+			if (line.flag == "FLAG_ZERO")          { machineCode += 0b0000000000000001; }
+			if (line.flag == "FLAG_EQUAL")         { machineCode += 0b0000000000000010; }
+			if (line.flag == "FLAG_GREATER_THAN")  { machineCode += 0b0000000000000011; }
+			if (line.flag == "FLAG_LESS_THAN")     { machineCode += 0b0000000000000100; }
+			if (line.flag == "!FLAG_ZERO")         { machineCode += 0b0000000000001001; }
+			if (line.flag == "!FLAG_EQUAL")        { machineCode += 0b0000000000001010; }
+			if (line.flag == "!FLAG_GREATER_THAN") { machineCode += 0b0000000000001011; }
+			if (line.flag == "!FLAG_LESS_THAN")    { machineCode += 0b0000000000001100; }
+
+			out.write((const char*)(&machineCode), sizeof(unsigned short));
+
+			if (line.argument != "null")
+			{
+				for (char ch : line.argument) { assertCharacterIsNumber(ch); }
+				assert(line.memorySize == 2);
+
+				unsigned long argumentLong = std::stoul(line.argument);
+				assert(argumentLong < 65536);
+				unsigned short argumentShort = (unsigned short)argumentLong;
+				out.write((const char*)(&argumentShort), sizeof(unsigned short));
+			}
+		}
+
+		if (line.type == "VAR")
+		{
+			unsigned short zero = 0;
+			for (int i = 0; i < line.memorySize; i++)
+			{
+				out.write((const char*)(&zero), sizeof(unsigned short));
+			}
+		}
+
+		if (line.type == "LBL")
+		{
+			continue;
 		}
 	}
 

@@ -36,8 +36,8 @@ var a
 //LDX r0 r0
 var b
 var c
-var x[64]
-var y[64]
+//var x[64]
+//var y[64]
 var head[4]
 var tail[3]
 
