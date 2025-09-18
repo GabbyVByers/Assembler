@@ -117,6 +117,108 @@ SourceLine processTokens(std::vector<std::string> tokens)
 		if (tokens.size() == 4) {
 			assertTokenIsValidFlag(tokens[3]);
 		}
+
+		sourceLine.inst = tokens[0];
+		sourceLine.dst = tokens[1];
+		sourceLine.argument = tokens[2];
+		if (tokens.size() == 4) {
+			sourceLine.flag = tokens[3];
+		}
+
+		sourceLine.type = "ASM";
+		sourceLine.memorySize = 2;
+		return sourceLine;
+	}
+
+	if ((tokens[0] == "LDX") ||
+		(tokens[0] == "STX") ||
+		(tokens[0] == "MOV") ||
+		(tokens[0] == "ADD") ||
+		(tokens[0] == "SUB") ||
+		(tokens[0] == "AND") ||
+		(tokens[0] == "ORR") ||
+		(tokens[0] == "XOR") ||
+		(tokens[0] == "CMP"))
+	{
+		assert((tokens.size() == 3) || (tokens.size() == 4));
+		assertTokenIsValidRegister(tokens[1]);
+		assertTokenIsValidRegister(tokens[2]);
+		if (tokens.size() == 4) {
+			assertTokenIsValidFlag(tokens[3]);
+		}
+
+		sourceLine.inst = tokens[0];
+		sourceLine.dst = tokens[1];
+		sourceLine.src = tokens[2];
+		if (tokens.size() == 4) {
+			sourceLine.flag = tokens[3];
+		}
+
+		sourceLine.type = "ASM";
+		sourceLine.memorySize = 1;
+		return sourceLine;
+	}
+
+	if ((tokens[0] == "SHR") ||
+		(tokens[0] == "SHL") ||
+		(tokens[0] == "KIN") ||
+		(tokens[0] == "GSP") ||
+		(tokens[0] == "PSH") ||
+		(tokens[0] == "POP"))
+	{
+		assert((tokens.size() == 2) || (tokens.size() == 3));
+		assertTokenIsValidRegister(tokens[1]);
+		if (tokens.size() == 3) {
+			assertTokenIsValidFlag(tokens[2]);
+		}
+
+		sourceLine.inst = tokens[0];
+		sourceLine.dst = tokens[1];
+		if (tokens.size() == 3) {
+			sourceLine.flag = tokens[2];
+		}
+
+		sourceLine.type = "ASM";
+		sourceLine.memorySize = 1;
+		return sourceLine;
+	}
+
+	if ((tokens[0] == "DRW") ||
+		(tokens[0] == "RTS"))
+	{
+		assert((tokens.size() == 1) || (tokens.size() == 2));
+		if (tokens.size() == 2) {
+			assertTokenIsValidFlag(tokens[1]);
+		}
+
+		sourceLine.inst = tokens[0];
+		if (tokens.size() == 2) {
+			sourceLine.flag = tokens[1];
+		}
+
+		sourceLine.type = "ASM";
+		sourceLine.memorySize = 1;
+		return sourceLine;
+	}
+
+	if ((tokens[0] == "JMP") ||
+		(tokens[0] == "JSR"))
+	{
+		assert((tokens.size() == 2) || (tokens.size() == 3));
+		assertTokenIsValidArgument(tokens[1]);
+		if ((tokens.size() == 3)) {
+			assertTokenIsValidFlag(tokens[2]);
+		}
+
+		sourceLine.inst = tokens[0];
+		sourceLine.argument = tokens[1];
+		if ((tokens.size() == 3)) {
+			sourceLine.flag = tokens[2];
+		}
+
+		sourceLine.type = "ASM";
+		sourceLine.memorySize = 2;
+		return sourceLine;
 	}
 
 	assert(false);
