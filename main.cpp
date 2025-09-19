@@ -360,7 +360,7 @@ SourceLine processTokens(std::vector<std::string> tokens)
 int main()
 {
 	std::vector<std::string> lines;
-	std::ifstream file("test.txt");
+	std::ifstream file("assembly.txt");
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -420,6 +420,9 @@ int main()
 					goto doubleContinue;
 				}
 			}
+
+			std::cout << "\n CATASTROPHIC ERROR: Could not Find Variable: " << targetVariable << "\n";
+			assert(false);
 		}
 
 		if (line.argument[0] == '.')
@@ -438,6 +441,9 @@ int main()
 					goto doubleContinue;
 				}
 			}
+
+			std::cout << "\n CATASTROPHIC ERROR: Could not Find Label: " << targetLabel << "\n";
+			assert(false);
 		}
 
 	doubleContinue:
@@ -488,14 +494,15 @@ int main()
 			if (line.src == "r2")   { machineCode += 0b0000000000100000; }
 			if (line.src == "r3")   { machineCode += 0b0000000000110000; }
 
-			if (line.flag == "FLAG_ZERO")          { machineCode += 0b0000000000000001; }
-			if (line.flag == "FLAG_EQUAL")         { machineCode += 0b0000000000000010; }
-			if (line.flag == "FLAG_GREATER_THAN")  { machineCode += 0b0000000000000011; }
-			if (line.flag == "FLAG_LESS_THAN")     { machineCode += 0b0000000000000100; }
-			if (line.flag == "!FLAG_ZERO")         { machineCode += 0b0000000000001001; }
-			if (line.flag == "!FLAG_EQUAL")        { machineCode += 0b0000000000001010; }
-			if (line.flag == "!FLAG_GREATER_THAN") { machineCode += 0b0000000000001011; }
-			if (line.flag == "!FLAG_LESS_THAN")    { machineCode += 0b0000000000001100; }
+			if (line.flag == "null")               { machineCode += 0b0000000000000000; }
+			if (line.flag == "FLAG_ZERO")          { machineCode += 0b0000000000001000; }
+			if (line.flag == "FLAG_EQUAL")         { machineCode += 0b0000000000001001; }
+			if (line.flag == "FLAG_GREATER_THAN")  { machineCode += 0b0000000000001010; }
+			if (line.flag == "FLAG_LESS_THAN")     { machineCode += 0b0000000000001011; }
+			if (line.flag == "!FLAG_ZERO")         { machineCode += 0b0000000000001100; }
+			if (line.flag == "!FLAG_EQUAL")        { machineCode += 0b0000000000001101; }
+			if (line.flag == "!FLAG_GREATER_THAN") { machineCode += 0b0000000000001110; }
+			if (line.flag == "!FLAG_LESS_THAN")    { machineCode += 0b0000000000001111; }
 
 			out.write((const char*)(&machineCode), sizeof(unsigned short));
 
