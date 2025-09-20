@@ -25,6 +25,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="snake.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
     <Text Include="assembly.txt">
       <Filter>Resource Files</Filter>
     </Text>

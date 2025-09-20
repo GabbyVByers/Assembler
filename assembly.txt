@@ -1,45 +1,62 @@
 
-label START
-	LDI r0 #0
-	STR r0 &snake_color
-	LDI r0 #0
-	STR r0 &head_x
-	LDI r0 #0
-	STR r0 &head_y
+	LDI r0 #1
+	STR r0 &rng
 
 label MAIN_LOOP
 	
-	// snake_color++;
-	// head_x++;
-	// if (head_x == 256) {
-	//     head_x = 0;
-	//     head_y++;
-	// }
+	JSR .HASH_RNG
+	LDR r0 &rng
+	LDI r1 #255
+	AND r0 r1
+	STR r0 &x
 
-	LDR r0 &snake_color
-	ADI r0 #1
-	STR r0 &snake_color
-	LDR r0 &head_x
-	ADI r0 #1
-	LDI r1 #256
-	CMP r0 r1
-	LDI r0 #0 FLAG_EQUAL
-	STR r0 &head_x
-	LDR r0 &head_y FLAG_EQUAL
-	ADI r0 #1 FLAG_EQUAL
-	STR r0 &head_y FLAG_EQUAL
+	JSR .HASH_RNG
+	LDR r0 &rng
+	LDI r1 #255
+	AND r0 r1
+	STR r0 &y
 
+	LDI r0 #2
+	LDR r2 &x
+	LDR r3 &y
+	DRW
 
-	JSR .DRAW_HEAD
 	JMP .MAIN_LOOP
 
-	
-label DRAW_HEAD
-	LDR r0 &snake_color
-	LDR r2 &head_x
-	LDR r3 &head_y
-	DRW
+// good-enough hashing algorithm found by trial and error
+// loops after missing about half of all values
+label HASH_RNG
+	LDR r0 &rng
+	LDI r1 #15
+	JSR .MULTIPLICATION_SUBROUTINE
+	ADI r0 #19
+	MOV r1 r0
+	SHR r1
+	SHR r1
+	SHL r0
+	SHL r0
+	XOR r0 r1
+	MOV r1 r0
+	SHR r1
+	SHR r1
+	SHL r0
+	SHL r0
+	XOR r0 r1
+	MOV r1 r0
+	SHR r1
+	SHR r1
+	SHL r0
+	SHL r0
+	XOR r0 r1
+	MOV r1 r0
+	SHR r1
+	SHR r1
+	SHL r0
+	SHL r0
+	XOR r0 r1
+	STR r0 &rng
 	RTS
+
 
 label MULTIPLICATION_SUBROUTINE
 	MOV r2 r0
@@ -55,9 +72,8 @@ label MULTIPLICATION_LOOP
 	ADI r2 #65535
 	JMP .MULTIPLICATION_LOOP
 
-	var head_x
-	var head_y
-	var snake_color
-
+	var rng
+	var x
+	var y
 
 

@@ -1,0 +1,132 @@
+
+label START_UP
+	LDI r0 #3
+	STR r0 &snake_color
+	LDI r0 #2
+	STR r0 &apple_color
+	LDI r0 #127
+	STR r0 &head_x
+	LDI r0 #127
+	STR r0 &head_y
+	LDI r0 #25
+	STR r0 &head_index
+
+label MAIN_LOOP
+	JSR .MOVE_SNAKE_WITH_KEYBOARD_INPUT
+
+
+
+	JSR .INCREMENT_HEAD_INDEX
+	JSR .INCREMENT_TAIL_INDEX
+	JSR .STORE_CURRENT_HEAD_POSITION
+	JSR .FETCH_NEXT_TAIL_POSITION
+	JSR .DRAW_SNAKE
+	JMP .MAIN_LOOP
+
+label MOVE_SNAKE_WITH_KEYBOARD_INPUT
+	KIN r0
+	LDI r1 #0
+	CMP r0 r1
+	STR r0 &current_direction !FLAG_EQUAL
+	LDR r0 &current_direction
+	LDI r1 #119
+	CMP r0 r1
+	LDR r0 &head_y FLAG_EQUAL
+	ADI r0 #65535  FLAG_EQUAL
+	STR r0 &head_y FLAG_EQUAL
+	LDR r0 &current_direction
+	LDI r1 #97
+	CMP r0 r1
+	LDR r0 &head_x FLAG_EQUAL
+	ADI r0 #65535  FLAG_EQUAL
+	STR r0 &head_x FLAG_EQUAL
+	LDR r0 &current_direction
+	LDI r1 #115
+	CMP r0 r1
+	LDR r0 &head_y FLAG_EQUAL
+	ADI r0 #1      FLAG_EQUAL
+	STR r0 &head_y FLAG_EQUAL
+	LDR r0 &current_direction
+	LDI r1 #100
+	CMP r0 r1
+	LDR r0 &head_x FLAG_EQUAL
+	ADI r0 #1      FLAG_EQUAL
+	STR r0 &head_x FLAG_EQUAL
+	RTS
+
+label INCREMENT_HEAD_INDEX
+	LDR r0 &head_index
+	ADI r0 #1
+	LDI r1 #255
+	CMP r0 r1
+	LDI r0 #0 FLAG_GREATER_THAN
+	STR r0 &head_index
+	RTS
+
+label INCREMENT_TAIL_INDEX
+	LDR r0 &tail_index
+	ADI r0 #1
+	LDI r1 #255
+	CMP r0 r1
+	LDI r0 #0 FLAG_GREATER_THAN
+	STR r0 &tail_index
+	RTS
+
+label STORE_CURRENT_HEAD_POSITION
+	LDR r0 &head_x
+	LDI r2 &snake_body_x
+	LDR r3 &head_index
+	ADD r2 r3
+	STX r0 r2
+	LDR r0 &head_y
+	LDI r2 &snake_body_y
+	LDR r3 &head_index
+	ADD r2 r3
+	STX r0 r2
+	RTS
+
+label FETCH_NEXT_TAIL_POSITION
+	LDI r2 &snake_body_x
+	LDR r3 &tail_index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &tail_x
+	LDI r2 &snake_body_y
+	LDR r3 &tail_index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &tail_y
+	RTS
+
+label DRAW_SNAKE
+	LDI r0 #0
+	LDR r2 &tail_x
+	LDR r3 &tail_y
+	DRW
+	LDR r0 &snake_color
+	LDR r2 &head_x
+	LDR r3 &head_y
+	DRW
+	RTS
+
+label RANDOM_NUMBER
+	
+	RTS
+
+// Global Variables
+
+var current_direction
+var head_x
+var head_y
+var tail_x
+var tail_y
+var head_index
+var tail_index
+var snake_body_x[256]
+var snake_body_y[256]
+var snake_color
+var apple_color
+var apples_x[8]
+var apples_y[8]
+
+
