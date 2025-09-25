@@ -31,5 +31,8 @@
     <Text Include="assembly.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="compiled_snake.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

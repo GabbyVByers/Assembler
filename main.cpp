@@ -162,9 +162,14 @@ void assertTokenIsValidRegister(std::string token)
 void assertTokenIsValidArgument(std::string token)
 {
 	assert(token.size() >= 2);
-	assert((token[0] == '#') ||
-		   (token[0] == '&') ||
-		   (token[0] == '.'));
+	if ((token[0] == '#') ||
+		(token[0] == '&') ||
+		(token[0] == '.'))
+	{
+		return;
+	}
+	std::cout << "\n CATASTROPHIC ERROR: Invalid Argument: " << token << "\n";
+	assert(false);
 }
 
 void assertTokenIsValidFlag(std::string token)

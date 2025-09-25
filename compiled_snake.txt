@@ -1,6 +1,4 @@
 	LDI r0 #119
-	STR r0 &currentDirection
-	LDI r0 #119
 	STR r0 &up
 	LDI r0 #115
 	STR r0 &down
@@ -8,15 +6,24 @@
 	STR r0 &left
 	LDI r0 #100
 	STR r0 &right
+
 	LDI r0 #127
 	STR r0 &head_x
 	LDI r0 #127
 	STR r0 &head_y
+
+	LDI r0 #119
+	STR r0 &currentDirection
+
 	LDI r0 #10
 	STR r0 &appleEatenCooldown
+
 	LDI r0 #0
 	STR r0 &index
+
+// start loop initApples
 label LOOP_START_initApples
+	// std::rand() & 255 -> apples_x[index];
 	JSR .FUNCTION_std::rand
 	LDI r1 #255
 	AND r0 r1
@@ -24,6 +31,7 @@ label LOOP_START_initApples
 	LDR r3 &index
 	ADD r2 r3
 	STX r0 r2
+	// std::rand() & 255 -> apples_y[index];
 	JSR .FUNCTION_std::rand
 	LDI r1 #255
 	AND r0 r1
@@ -31,63 +39,69 @@ label LOOP_START_initApples
 	LDR r3 &index
 	ADD r2 r3
 	STX r0 r2
+	// index + 1 -> index;
 	LDR r0 &index
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &index
+	// (index >= 16)
 	LDR r0 &index
 	LDI r1 #16
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 !FLAG_LESS_THAN
+	// if () { break initApples; }
 	CMP r0 r0
 	JMP .END_IF_0 FLAG_ZERO
 	JMP .LOOP_END_initApples
 label END_IF_0
+	// end loop initApples
 	JMP .LOOP_START_initApples
 label LOOP_END_initApples
+	
+
+// start loop main
 label LOOP_START_main
+	// std::getInput() -> key;
 	JSR .FUNCTION_std::getInput
 	STR r0 &key
+	// (key != 0)
 	LDR r0 &key
 	LDI r1 #0
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 !FLAG_EQUAL
+	// if () { key -> currentDirection; }
 	CMP r0 r0
 	JMP .END_IF_1 FLAG_ZERO
 	LDR r0 &key
 	STR r0 &currentDirection
 label END_IF_1
+	// moveSnakeHead();
+	// drawSnakeHead();
 	JSR .FUNCTION_moveSnakeHead
 	JSR .FUNCTION_drawSnakeHead
+	// head_index + 1 -> head_index;
 	LDR r0 &head_index
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &head_index
-	LDR r0 &head_index
-	LDI r1 #512
-	CMP r0 r1
-	LDI r0 #0
-	LDI r0 #1 !FLAG_LESS_THAN
-	CMP r0 r0
-	JMP .END_IF_2 FLAG_ZERO
-	LDI r0 #0
-	STR r0 &head_index
-label END_IF_2
+	// head_x -> snake_body_x[head_index];
 	LDR r0 &head_x
 	LDI r2 &snake_body_x
 	LDR r3 &head_index
 	ADD r2 r3
 	STX r0 r2
+	// head_y -> snake_body_y[head_index];
 	LDR r0 &head_y
 	LDI r2 &snake_body_y
 	LDR r3 &head_index
 	ADD r2 r3
 	STX r0 r2
+
+	// 0 -> index;
 	LDI r0 #0
 	STR r0 &index
 label LOOP_START_eatApple
+	// apples_x[index] == head_x
 	LDI r2 &apples_x
 	LDR r3 &index
 	ADD r2 r3
@@ -96,8 +110,10 @@ label LOOP_START_eatApple
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
+	// if () {} outer
 	CMP r0 r0
-	JMP .END_IF_3 FLAG_ZERO
+	JMP .END_IF_2 FLAG_ZERO
+	// apples_y[index] == head_y
 	LDI r2 &apples_y
 	LDR r3 &index
 	ADD r2 r3
@@ -106,12 +122,14 @@ label LOOP_START_eatApple
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
+	// if () {} inner
 	CMP r0 r0
-	JMP .END_IF_4 FLAG_ZERO
+	JMP .END_IF_3 FLAG_ZERO
+	// appleEatenCooldown + 10 -> appleEatenCooldown;
 	LDR r0 &appleEatenCooldown
-	LDI r1 #10
-	ADD r0 r1
+	ADI r0 #10
 	STR r0 &appleEatenCooldown
+	// std::rand() & 255 -> apples_x[index];
 	JSR .FUNCTION_std::rand
 	LDI r1 #255
 	AND r0 r1
@@ -119,6 +137,7 @@ label LOOP_START_eatApple
 	LDR r3 &index
 	ADD r2 r3
 	STX r0 r2
+	// std::rand() & 255 -> apples_y[index];
 	JSR .FUNCTION_std::rand
 	LDI r1 #255
 	AND r0 r1
@@ -126,73 +145,81 @@ label LOOP_START_eatApple
 	LDR r3 &index
 	ADD r2 r3
 	STX r0 r2
+	// break eatApple
 	JMP .LOOP_END_eatApple
-	JMP .LOOP_END_eatApple
-label END_IF_4
 label END_IF_3
+label END_IF_2
+
+	// index + 1 -> index;
 	LDR r0 &index
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &index
+	// index >= 16
 	LDR r0 &index
 	LDI r1 #16
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 !FLAG_LESS_THAN
+	// if () { break eatApple; } 
 	CMP r0 r0
-	JMP .END_IF_5 FLAG_ZERO
+	JMP .END_IF_4 FLAG_ZERO
 	JMP .LOOP_END_eatApple
-label END_IF_5
+label END_IF_4
+
 	JMP .LOOP_START_eatApple
 label LOOP_END_eatApple
+	
+	// snake_body_x[tail_index] -> tail_x;
 	LDI r2 &snake_body_x
 	LDR r3 &tail_index
 	ADD r2 r3
 	LDX r0 r2
 	STR r0 &tail_x
+	// snake_body_y[tail_index] -> tail_y;
 	LDI r2 &snake_body_y
 	LDR r3 &tail_index
 	ADD r2 r3
 	LDX r0 r2
 	STR r0 &tail_y
+
+	// eraseSnakeTail();
 	JSR .FUNCTION_eraseSnakeTail
+	
+	// appleEatenCooldown == 0
 	LDR r0 &appleEatenCooldown
 	LDI r1 #0
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
+	// if () { tail_index + 1 -> tail_index; }
 	CMP r0 r0
-	JMP .END_IF_6 FLAG_ZERO
+	JMP .END_IF_5 FLAG_ZERO
 	LDR r0 &tail_index
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &tail_index
-	LDR r0 &tail_index
-	LDI r1 #512
-	CMP r0 r1
-	LDI r0 #0
-	LDI r0 #1 !FLAG_LESS_THAN
-	CMP r0 r0
-	JMP .END_IF_7 FLAG_ZERO
-	LDI r0 #0
-	STR r0 &tail_index
-label END_IF_7
-label END_IF_6
+label END_IF_5
+
+	// appleEatenCooldown > 0
 	LDR r0 &appleEatenCooldown
 	LDI r1 #0
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_GREATER_THAN
+	// if () { appleEatenCooldown - 1 -> appleEatenCooldown; }
 	CMP r0 r0
-	JMP .END_IF_8 FLAG_ZERO
+	JMP .END_IF_6 FLAG_ZERO
 	LDR r0 &appleEatenCooldown
-	LDI r1 #1
-	SUB r0 r1
+	ADI r0 #65535
 	STR r0 &appleEatenCooldown
-label END_IF_8
+label END_IF_6
+
+	// drawApples();
 	JSR .FUNCTION_drawApples
+
+	// end loop main
 	JMP .LOOP_START_main
 label LOOP_END_main
+
 label FUNCTION_moveSnakeHead
 	LDR r0 &currentDirection
 	LDR r1 &up
@@ -200,49 +227,48 @@ label FUNCTION_moveSnakeHead
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
 	CMP r0 r0
-	JMP .END_IF_9 FLAG_ZERO
+	JMP .END_IF_8 FLAG_ZERO
 	LDR r0 &head_y
-	LDI r1 #1
-	SUB r0 r1
+	ADI r0 #65535
 	STR r0 &head_y
-label END_IF_9
+label END_IF_8
 	LDR r0 &currentDirection
 	LDR r1 &down
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
 	CMP r0 r0
-	JMP .END_IF_10 FLAG_ZERO
+	JMP .END_IF_9 FLAG_ZERO
 	LDR r0 &head_y
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &head_y
-label END_IF_10
+label END_IF_9
 	LDR r0 &currentDirection
 	LDR r1 &left
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
 	CMP r0 r0
-	JMP .END_IF_11 FLAG_ZERO
+	JMP .END_IF_10 FLAG_ZERO
 	LDR r0 &head_x
-	LDI r1 #1
-	SUB r0 r1
+	ADI r0 #65535
 	STR r0 &head_x
-label END_IF_11
+label END_IF_10
 	LDR r0 &currentDirection
 	LDR r1 &right
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 FLAG_EQUAL
 	CMP r0 r0
-	JMP .END_IF_12 FLAG_ZERO
+	JMP .END_IF_11 FLAG_ZERO
 	LDR r0 &head_x
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &head_x
-label END_IF_12
+label END_IF_11
 	RTS
+
+
+
 label FUNCTION_drawSnakeHead
 	LDI r0 #3
 	STR r0 &screen_color
@@ -252,6 +278,7 @@ label FUNCTION_drawSnakeHead
 	STR r0 &screen_y
 	JSR .FUNCTION_std::drawToScreen
 	RTS
+
 label FUNCTION_eraseSnakeTail
 	LDI r0 #0
 	STR r0 &screen_color
@@ -261,56 +288,50 @@ label FUNCTION_eraseSnakeTail
 	STR r0 &screen_y
 	JSR .FUNCTION_std::drawToScreen
 	RTS
+
 label FUNCTION_drawApples
 	LDI r0 #0
 	STR r0 &index
 label LOOP_START_drawApples
 	LDI r0 #2
 	STR r0 &screen_color
+	// apples_x[index] -> screen_x;
 	LDI r2 &apples_x
 	LDR r3 &index
 	ADD r2 r3
 	LDX r0 r2
 	STR r0 &screen_x
+	// apples_y[index] -> screen_y;
 	LDI r2 &apples_y
 	LDR r3 &index
 	ADD r2 r3
 	LDX r0 r2
 	STR r0 &screen_y
+	// std::drawToScreen();
 	JSR .FUNCTION_std::drawToScreen
+	// index + 1 -> index;
 	LDR r0 &index
-	LDI r1 #1
-	ADD r0 r1
+	ADI r0 #1
 	STR r0 &index
+	// (index >= 16)
 	LDR r0 &index
 	LDI r1 #16
 	CMP r0 r1
 	LDI r0 #0
 	LDI r0 #1 !FLAG_LESS_THAN
+	// if () { break drawApples }
 	CMP r0 r0
-	JMP .END_IF_13 FLAG_ZERO
+	JMP .END_IF_7 FLAG_ZERO
 	JMP .LOOP_END_drawApples
-label END_IF_13
+label END_IF_7
+
 	JMP .LOOP_START_drawApples
 label LOOP_END_drawApples
 	RTS
-label MULTIPLICATION_SUBROUTINE
-	MOV r2 r0
-	LDI r0 #0
-	CMP r1 r2
-	MOV r3 r1 FLAG_LESS_THAN
-	MOV r1 r2 FLAG_LESS_THAN
-	MOV r2 r3 FLAG_LESS_THAN
-label MULTIPLICATION_LOOP
-	CMP r2 r2
-	RTS FLAG_ZERO
-	ADD r0 r1
-	ADI r2 #65535
-	JMP .MULTIPLICATION_LOOP
-label DIVISION_SUBROUTINE
-	RTS
-label MODULOS_SUBROUTINE
-	RTS
+
+
+
+// std::rand();
 label FUNCTION_std::rand
 	LDR r0 &current_rng_state
 	LDI r1 #15
@@ -342,34 +363,66 @@ label FUNCTION_std::rand
 	XOR r0 r1
 	STR r0 &current_rng_state
 	RTS
+
+// std::getInput();
 label FUNCTION_std::getInput
 	KIN r0
 	RTS
+
+// std::drawToScreen();
 label FUNCTION_std::drawToScreen
 	LDR r0 &screen_color
 	LDR r2 &screen_x
 	LDR r3 &screen_y
 	DRW
 	RTS
-	var screen_color
-	var screen_x
-	var screen_y
-	var current_rng_state
-	var key
-	var currentDirection
-	var up
-	var down
-	var left
-	var right
-	var head_x
-	var head_y
-	var tail_x
-	var tail_y
-	var head_index
-	var tail_index
-	var snake_body_x[512]
-	var snake_body_y[512]
-	var appleEatenCooldown
-	var apples_x[16]
-	var apples_y[16]
-	var index
+
+// Multiplication Subroutine
+label MULTIPLICATION_SUBROUTINE
+	MOV r2 r0
+	LDI r0 #0
+	CMP r1 r2
+	MOV r3 r1 FLAG_LESS_THAN
+	MOV r1 r2 FLAG_LESS_THAN
+	MOV r2 r3 FLAG_LESS_THAN
+label MULTIPLICATION_LOOP
+	CMP r2 r2
+	RTS FLAG_ZERO
+	ADD r0 r1
+	ADI r2 #65535
+	JMP .MULTIPLICATION_LOOP
+
+
+
+var key
+var currentDirection
+
+var up
+var down
+var left
+var right
+
+var head_x
+var head_y
+
+var tail_x
+var tail_y
+
+var head_index
+var tail_index
+
+var snake_body_x[512]
+var snake_body_y[512]
+
+var appleEatenCooldown
+
+var apples_x[16]
+var apples_y[16]
+
+var index
+
+var screen_color
+var screen_x
+var screen_y
+var current_rng_state
+
