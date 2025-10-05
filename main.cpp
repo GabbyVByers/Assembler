@@ -7,6 +7,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cctype>
+#include <iomanip>
 
 struct SourceLine {
 	unsigned int memoryAddress = 0;
@@ -320,6 +321,12 @@ SourceLine processTokens(std::vector<std::string> tokens) {
 	assert(false);
 }
 
+std::string stringToHex(unsigned short value) {
+	std::ostringstream oss;
+	oss << std::hex << std::setw(4) << std::setfill('0') << std::nouppercase << value;
+	return oss.str();
+}
+
 int main() {
 	std::vector<std::string> lines;
 	std::ifstream file("assembly.txt");
@@ -402,7 +409,7 @@ int main() {
 	}
 
 	std::ofstream out("compiled_binary.bin", std::ios::binary);
-	std::ofstream textOut("memory_init.txt");
+	std::ofstream textOut("memory_init.hex");
 	for (SourceLine& line : sourceLines) {
 		assert(line.type != "null");
 		assert(sizeof(unsigned short) == 2);
@@ -491,6 +498,8 @@ int main() {
 				assert(argumentLong < 65536);
 				unsigned short argumentShort = (unsigned short)argumentLong;
 				out.write((const char*)(&argumentShort), sizeof(unsigned short));
+				textOut << stringToHex(argumentShort);
+				textOut << "\n";
 			}
 		}
 

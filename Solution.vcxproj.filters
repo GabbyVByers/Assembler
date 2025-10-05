@@ -23,6 +23,9 @@
     <None Include="compiled_binary.bin">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="memory_init.hex">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="snake.txt">
@@ -32,9 +35,6 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="compiled_snake.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="memory_init.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
