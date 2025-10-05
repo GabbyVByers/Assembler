@@ -34,5 +34,8 @@
     <Text Include="compiled_snake.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="memory_init.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

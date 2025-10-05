@@ -131,6 +131,7 @@
   <ItemGroup>
     <Text Include="assembly.txt" />
     <Text Include="compiled_snake.txt" />
+    <Text Include="memory_init.txt" />
     <Text Include="snake.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
