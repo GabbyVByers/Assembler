@@ -1,55 +1,849 @@
+	LDI r0 #12
+	STR r0 &GREEN
+	LDI r0 #21
+	STR r0 &BACKGROUND_COLOR
+	LDI r0 #0
+	STR r0 &WALL_COLOR
+	LDI r0 #48
+	STR r0 &RED
+	LDI r0 #1
+	STR r0 &UP
 	LDI r0 #2
-	STR r0 &num_chars
-	LDI r0 #8
-	STR r0 &max_color
-label LOOP_START_main
-	LDI r0 #10
-	STR r0 &screen_x
-	LDI r0 #10
+	STR r0 &DOWN
+	LDI r0 #3
+	STR r0 &LEFT
+	LDI r0 #4
+	STR r0 &RIGHT
+	LDI r0 #0
+	STR r0 &game_over
+	LDI r0 #0
+	STR r0 &apple_cool_down
+	JSR .FUNCTION_main
+label FUNCTION_main
+	JSR .FUNCTION_clear_screen
+	JSR .FUNCTION_draw_walls
+	JSR .FUNCTION_init_apples
+	JSR .FUNCTION_init_snake
+	JSR .FUNCTION_game_loop
+	RTS
+label FUNCTION_clear_screen
+	LDR r0 &BACKGROUND_COLOR
+	STR r0 &screen_color
+	LDI r0 #0
 	STR r0 &screen_y
-	LDR r0 &color
+label LOOP_START_for_y
+	LDI r0 #0
+	STR r0 &screen_x
+label LOOP_START_for_x
+	JSR .FUNCTION_std::drawToScreen
+	LDR r0 &screen_x
 	LDI r1 #1
 	ADD r0 r1
-	STR r0 &color
-	LDR r0 &color
-	STR r0 &screen_color
-	LDR r0 &color
-	LDR r1 &max_color
+	STR r0 &screen_x
+	LDR r0 &screen_x
+	LDI r1 #256
 	CMP r0 r1
 	LDI r0 #0
-	LDI r0 #1 !FLAG_LESS_THAN
+	LDI r0 #1 FLAG_EQUAL
 	CMP r0 r0
 	JMP .END_IF_0 FLAG_ZERO
-	LDI r0 #0
-	STR r0 &color
+	JMP .LOOP_END_for_x
 label END_IF_0
+	JMP .LOOP_START_for_x
+label LOOP_END_for_x
+	LDR r0 &screen_y
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &screen_y
+	LDR r0 &screen_y
+	LDI r1 #256
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_1 FLAG_ZERO
+	JMP .LOOP_END_for_y
+label END_IF_1
+	JMP .LOOP_START_for_y
+label LOOP_END_for_y
+	RTS
+label FUNCTION_draw_walls
+	LDI r0 #0
+	STR r0 &pixel_x
+	LDI r0 #0
+	STR r0 &pixel_y
+label LOOP_START_topwll
+	LDR r0 &WALL_COLOR
+	STR r0 &screen_color
+	LDR r0 &pixel_x
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDR r0 &pixel_y
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &pixel_x
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &pixel_x
+	LDR r0 &pixel_x
+	LDI r1 #128
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_2 FLAG_ZERO
+	JMP .LOOP_END_topwll
+label END_IF_2
+	JMP .LOOP_START_topwll
+label LOOP_END_topwll
+	LDI r0 #0
+	STR r0 &pixel_x
+	LDI r0 #127
+	STR r0 &pixel_y
+label LOOP_START_bttmwll
+	LDR r0 &WALL_COLOR
+	STR r0 &screen_color
+	LDR r0 &pixel_x
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDR r0 &pixel_y
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &pixel_x
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &pixel_x
+	LDR r0 &pixel_x
+	LDI r1 #128
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_3 FLAG_ZERO
+	JMP .LOOP_END_bttmwll
+label END_IF_3
+	JMP .LOOP_START_bttmwll
+label LOOP_END_bttmwll
+	LDI r0 #0
+	STR r0 &pixel_x
+	LDI r0 #0
+	STR r0 &pixel_y
+label LOOP_START_lftwll
+	LDR r0 &WALL_COLOR
+	STR r0 &screen_color
+	LDR r0 &pixel_x
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDR r0 &pixel_y
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &pixel_y
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &pixel_y
+	LDR r0 &pixel_y
+	LDI r1 #128
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_4 FLAG_ZERO
+	JMP .LOOP_END_lftwll
+label END_IF_4
+	JMP .LOOP_START_lftwll
+label LOOP_END_lftwll
+	LDI r0 #127
+	STR r0 &pixel_x
+	LDI r0 #0
+	STR r0 &pixel_y
+label LOOP_START_rgtwll
+	LDR r0 &WALL_COLOR
+	STR r0 &screen_color
+	LDR r0 &pixel_x
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDR r0 &pixel_y
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &pixel_y
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &pixel_y
+	LDR r0 &pixel_y
+	LDI r1 #128
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_5 FLAG_ZERO
+	JMP .LOOP_END_rgtwll
+label END_IF_5
+	JMP .LOOP_START_rgtwll
+label LOOP_END_rgtwll
+	RTS
+label FUNCTION_init_apples
 	LDI r0 #0
 	STR r0 &index
-label LOOP_START_draw_char_loop
-	JSR .FUNCTION_std::blit_A
-	JSR .FUNCTION_std::blit_B
-	JSR .FUNCTION_std::blit_C
-	JSR .FUNCTION_std::blit_D
-	JSR .FUNCTION_std::blit_E
-	JSR .FUNCTION_std::blit_F
-	JSR .FUNCTION_std::blit_G
+label LOOP_START_appl
+	JSR .FUNCTION_std::rand
+	LDI r1 #127
+	AND r0 r1
+	LDI r2 &apples_x
+	LDR r3 &index
+	ADD r2 r3
+	STX r0 r2
+	JSR .FUNCTION_std::rand
+	LDI r1 #127
+	AND r0 r1
+	LDI r2 &apples_y
+	LDR r3 &index
+	ADD r2 r3
+	STX r0 r2
 	LDR r0 &index
 	LDI r1 #1
 	ADD r0 r1
 	STR r0 &index
 	LDR r0 &index
-	LDR r1 &num_chars
+	LDI r1 #32
 	CMP r0 r1
 	LDI r0 #0
-	LDI r0 #1 !FLAG_LESS_THAN
+	LDI r0 #1 FLAG_EQUAL
 	CMP r0 r0
-	JMP .END_IF_1 FLAG_ZERO
-	JMP .LOOP_END_draw_char_loop
-label END_IF_1
-	JMP .LOOP_START_draw_char_loop
-label LOOP_END_draw_char_loop
-	JMP .LOOP_START_main
-label LOOP_END_main
+	JMP .END_IF_6 FLAG_ZERO
+	JMP .LOOP_END_appl
+label END_IF_6
+	JMP .LOOP_START_appl
+label LOOP_END_appl
+	LDI r0 #0
+	STR r0 &index
+label LOOP_START_drwappls
+	LDR r0 &RED
+	STR r0 &screen_color
+	LDI r2 &apples_x
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDI r2 &apples_y
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &index
+	LDR r0 &index
+	LDI r1 #32
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_7 FLAG_ZERO
+	JMP .LOOP_END_drwappls
+label END_IF_7
+	JMP .LOOP_START_drwappls
+label LOOP_END_drwappls
+	RTS
+label FUNCTION_init_snake
+	LDI r0 #4
+	STR r0 &head_index
+	LDI r0 #0
+	STR r0 &tail_index
+	LDI r0 #32
+	LDI r2 &snake_body_x
+	LDI r3 #0
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #33
+	LDI r2 &snake_body_x
+	LDI r3 #1
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #34
+	LDI r2 &snake_body_x
+	LDI r3 #2
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #35
+	LDI r2 &snake_body_x
+	LDI r3 #3
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #36
+	LDI r2 &snake_body_x
+	LDI r3 #4
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #64
+	LDI r2 &snake_body_y
+	LDI r3 #0
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #64
+	LDI r2 &snake_body_y
+	LDI r3 #1
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #64
+	LDI r2 &snake_body_y
+	LDI r3 #2
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #64
+	LDI r2 &snake_body_y
+	LDI r3 #3
+	ADD r2 r3
+	STX r0 r2
+	LDI r0 #64
+	LDI r2 &snake_body_y
+	LDI r3 #4
+	ADD r2 r3
+	STX r0 r2
+	LDR r0 &RIGHT
+	STR r0 &curr_direction
+	LDR r0 &tail_index
+	STR r0 &index
+label LOOP_START_drw_init_snk
+	LDR r0 &GREEN
+	STR r0 &screen_color
+	LDI r2 &snake_body_x
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDI r2 &snake_body_y
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &index
+	LDR r0 &head_index
+	LDI r1 #1
+	ADD r0 r1
+	LDR r1 &index
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_8 FLAG_ZERO
+	JMP .LOOP_END_drw_init_snk
+label END_IF_8
+	JMP .LOOP_START_drw_init_snk
+label LOOP_END_drw_init_snk
+	RTS
+label FUNCTION_draw_four_pixels
+	JSR .FUNCTION_std::drawToScreen
+	LDR r0 &screen_x
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &screen_x
+	JSR .FUNCTION_std::drawToScreen
+	LDR r0 &screen_y
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &screen_y
+	JSR .FUNCTION_std::drawToScreen
+	LDR r0 &screen_x
+	LDI r1 #1
+	SUB r0 r1
+	STR r0 &screen_x
+	JSR .FUNCTION_std::drawToScreen
+	LDR r0 &screen_y
+	LDI r1 #1
+	SUB r0 r1
+	STR r0 &screen_y
+	RTS
+label FUNCTION_game_loop
+label LOOP_START_main_loop
+	JSR .FUNCTION_std::getInput
+	LDI r1 #255
+	AND r0 r1
+	STR r0 &input
+	LDR r0 &input
+	LDI r1 #16
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_9 FLAG_ZERO
+	JSR .FUNCTION_clear_screen
+	JSR .FUNCTION_draw_walls
+	JSR .FUNCTION_init_apples
+	JSR .FUNCTION_init_snake
+label END_IF_9
+	LDI r0 #0
+	STR r0 &delay
+label LOOP_START_delaylp
+	JSR .FUNCTION_std::getInput
+	LDI r1 #255
+	AND r0 r1
+	STR r0 &input
+	LDR r0 &input
+	LDI r1 #8
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_10 FLAG_ZERO
+	LDR r0 &curr_direction
+	LDR r1 &DOWN
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 !FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_11 FLAG_ZERO
+	LDR r0 &UP
+	STR r0 &curr_direction
+label END_IF_11
+label END_IF_10
+	LDR r0 &input
+	LDI r1 #4
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_12 FLAG_ZERO
+	LDR r0 &curr_direction
+	LDR r1 &UP
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 !FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_13 FLAG_ZERO
+	LDR r0 &DOWN
+	STR r0 &curr_direction
+label END_IF_13
+label END_IF_12
+	LDR r0 &input
+	LDI r1 #2
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_14 FLAG_ZERO
+	LDR r0 &curr_direction
+	LDR r1 &RIGHT
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 !FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_15 FLAG_ZERO
+	LDR r0 &LEFT
+	STR r0 &curr_direction
+label END_IF_15
+label END_IF_14
+	LDR r0 &input
+	LDI r1 #1
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_16 FLAG_ZERO
+	LDR r0 &curr_direction
+	LDR r1 &LEFT
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 !FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_17 FLAG_ZERO
+	LDR r0 &RIGHT
+	STR r0 &curr_direction
+label END_IF_17
+label END_IF_16
+	LDR r0 &delay
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &delay
+	LDR r0 &delay
+	LDI r1 #140
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_18 FLAG_ZERO
+	JMP .LOOP_END_delaylp
+label END_IF_18
+	JMP .LOOP_START_delaylp
+label LOOP_END_delaylp
+	LDI r2 &snake_body_x
+	LDR r3 &head_index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &curr_x
+	LDI r2 &snake_body_y
+	LDR r3 &head_index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &curr_y
+	LDR r0 &curr_direction
+	LDR r1 &UP
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_19 FLAG_ZERO
+	LDR r0 &curr_y
+	LDI r1 #1
+	SUB r0 r1
+	STR r0 &curr_y
+label END_IF_19
+	LDR r0 &curr_direction
+	LDR r1 &DOWN
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_20 FLAG_ZERO
+	LDR r0 &curr_y
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &curr_y
+label END_IF_20
+	LDR r0 &curr_direction
+	LDR r1 &LEFT
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_21 FLAG_ZERO
+	LDR r0 &curr_x
+	LDI r1 #1
+	SUB r0 r1
+	STR r0 &curr_x
+label END_IF_21
+	LDR r0 &curr_direction
+	LDR r1 &RIGHT
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_22 FLAG_ZERO
+	LDR r0 &curr_x
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &curr_x
+label END_IF_22
+	LDR r0 &tail_index
+	STR r0 &index
+label LOOP_START_body_collision_loop
+	LDI r2 &snake_body_x
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &this_x
+	LDI r2 &snake_body_y
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &this_y
+	LDR r0 &this_x
+	LDR r1 &curr_x
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_23 FLAG_ZERO
+	LDR r0 &this_y
+	LDR r1 &curr_y
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_24 FLAG_ZERO
+	JSR .FUNCTION_game_over
+label END_IF_24
+label END_IF_23
+	LDR r0 &index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &index
+	LDR r0 &head_index
+	LDI r1 #1
+	ADD r0 r1
+	LDR r1 &index
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_25 FLAG_ZERO
+	JMP .LOOP_END_body_collision_loop
+label END_IF_25
+	JMP .LOOP_START_body_collision_loop
+label LOOP_END_body_collision_loop
+	LDR r0 &curr_x
+	LDI r1 #0
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_26 FLAG_ZERO
+	JSR .FUNCTION_game_over
+label END_IF_26
+	LDR r0 &curr_x
+	LDI r1 #127
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_27 FLAG_ZERO
+	JSR .FUNCTION_game_over
+label END_IF_27
+	LDR r0 &curr_y
+	LDI r1 #0
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_28 FLAG_ZERO
+	JSR .FUNCTION_game_over
+label END_IF_28
+	LDR r0 &curr_y
+	LDI r1 #127
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_29 FLAG_ZERO
+	JSR .FUNCTION_game_over
+label END_IF_29
+	LDI r0 #0
+	STR r0 &index
+label LOOP_START_eatappl
+	LDI r2 &apples_x
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &appl_x
+	LDI r2 &apples_y
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	STR r0 &appl_y
+	LDR r0 &curr_x
+	LDR r1 &appl_x
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_30 FLAG_ZERO
+	LDR r0 &curr_y
+	LDR r1 &appl_y
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_31 FLAG_ZERO
+	LDR r0 &apple_cool_down
+	LDI r1 #10
+	ADD r0 r1
+	STR r0 &apple_cool_down
+	JSR .FUNCTION_std::rand
+	LDI r1 #127
+	AND r0 r1
+	LDI r2 &apples_x
+	LDR r3 &index
+	ADD r2 r3
+	STX r0 r2
+	JSR .FUNCTION_std::rand
+	LDI r1 #127
+	AND r0 r1
+	LDI r2 &apples_y
+	LDR r3 &index
+	ADD r2 r3
+	STX r0 r2
+	JMP .LOOP_END_eatappl
+label END_IF_31
+label END_IF_30
+	LDR r0 &index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &index
+	LDR r0 &index
+	LDI r1 #32
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_32 FLAG_ZERO
+	JMP .LOOP_END_eatappl
+label END_IF_32
+	JMP .LOOP_START_eatappl
+label LOOP_END_eatappl
+	LDR r0 &head_index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &head_index
+	LDR r0 &curr_x
+	LDI r2 &snake_body_x
+	LDR r3 &head_index
+	ADD r2 r3
+	STX r0 r2
+	LDR r0 &curr_y
+	LDI r2 &snake_body_y
+	LDR r3 &head_index
+	ADD r2 r3
+	STX r0 r2
+	LDR r0 &GREEN
+	STR r0 &screen_color
+	LDI r2 &snake_body_x
+	LDR r3 &head_index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDI r2 &snake_body_y
+	LDR r3 &head_index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &apple_cool_down
+	LDI r1 #0
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_33 FLAG_ZERO
+	LDR r0 &BACKGROUND_COLOR
+	STR r0 &screen_color
+	LDI r2 &snake_body_x
+	LDR r3 &tail_index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDI r2 &snake_body_y
+	LDR r3 &tail_index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &tail_index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &tail_index
+label END_IF_33
+	LDR r0 &apple_cool_down
+	LDI r1 #0
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 !FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_34 FLAG_ZERO
+	LDR r0 &apple_cool_down
+	LDI r1 #1
+	SUB r0 r1
+	STR r0 &apple_cool_down
+label END_IF_34
+	LDI r0 #0
+	STR r0 &index
+label LOOP_START_drwappls2
+	LDR r0 &RED
+	STR r0 &screen_color
+	LDI r2 &apples_x
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_x
+	LDI r2 &apples_y
+	LDR r3 &index
+	ADD r2 r3
+	LDX r0 r2
+	LDI r1 #2
+	JSR .MULTIPLICATION_SUBROUTINE
+	STR r0 &screen_y
+	JSR .FUNCTION_draw_four_pixels
+	LDR r0 &index
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &index
+	LDR r0 &index
+	LDI r1 #32
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_35 FLAG_ZERO
+	JMP .LOOP_END_drwappls2
+label END_IF_35
+	JMP .LOOP_START_drwappls2
+label LOOP_END_drwappls2
+	JMP .LOOP_START_main_loop
+label LOOP_END_main_loop
+	RTS
+label FUNCTION_game_over
+	LDI r0 #0
+	STR r0 &text_color
+label LOOP_START_lose_message
+	LDR r0 &text_color
+	STR r0 &screen_color
+	LDI r0 #93
+	STR r0 &screen_x
+	LDI r0 #115
+	STR r0 &screen_y
+	JSR .FUNCTION_std::blit_G
+	JSR .FUNCTION_std::blit_A
+	JSR .FUNCTION_std::blit_M
+	JSR .FUNCTION_std::blit_E
+	JSR .FUNCTION_std::blit_SPACE
+	JSR .FUNCTION_std::blit_O
+	JSR .FUNCTION_std::blit_V
+	JSR .FUNCTION_std::blit_E
+	JSR .FUNCTION_std::blit_R
+	LDR r0 &text_color
+	LDI r1 #1
+	ADD r0 r1
+	STR r0 &text_color
+	JSR .FUNCTION_std::getInput
+	LDI r1 #255
+	AND r0 r1
+	STR r0 &input
+	LDR r0 &input
+	LDI r1 #16
+	CMP r0 r1
+	LDI r0 #0
+	LDI r0 #1 FLAG_EQUAL
+	CMP r0 r0
+	JMP .END_IF_36 FLAG_ZERO
+	JSR .FUNCTION_main
+label END_IF_36
+	JMP .LOOP_START_lose_message
+label LOOP_END_lose_message
+	RTS
 //
 // THE "VIOLET C" STANDARD LIBRARY
 // PRE-IMPLEMENTED HELPER FUNCTIONS, INCLUDING I/O
@@ -382,6 +1176,209 @@ label FUNCTION_std::blit_G
 	STR r3 &screen_y
 	RTS
 
+label FUNCTION_std::blit_M
+	LDR r0 &screen_color
+	LDR r2 &screen_x
+	LDR r3 &screen_y
+	ADI r2 #1
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r2 #4
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r2 #65535
+	ADI r3 #1
+	DRW
+	ADI r2 #65535
+	ADI r3 #1
+	DRW
+	ADI r3 #65535
+	ADI r2 #65535
+	DRW
+	ADI r2 #5
+	ADI r3 #65535
+	ADI r3 #65535
+	STR r2 &screen_x
+	STR r3 &screen_y
+	RTS
+
+label FUNCTION_std::blit_O
+	LDR r0 &screen_color
+	LDR r2 &screen_x
+	LDR r3 &screen_y
+	ADI r2 #1
+	ADI r3 #2
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	ADI r2 #1
+	DRW
+	ADI r2 #1
+	DRW
+	ADI r2 #1
+	DRW
+	ADI r2 #1
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	ADI r2 #65535
+	DRW
+	ADI r2 #65535
+	DRW
+	ADI r2 #65535
+	DRW
+	ADI r3 #5
+	ADI r3 #65535
+	ADI r2 #5
+	ADI r3 #65535
+	ADI r3 #65535
+	ADI r3 #65535
+	ADI r3 #65535
+	ADI r3 #65535
+	STR r2 &screen_x
+	STR r3 &screen_y
+	RTS
+
+label FUNCTION_std::blit_V
+	LDR r0 &screen_color
+	LDR r2 &screen_x
+	LDR r3 &screen_y
+	ADI r2 #1
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r2 #1
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r2 #1
+	ADI r3 #1
+	DRW
+	ADI r2 #1
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r2 #1
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r2 #2
+	ADI r3 #65535
+	STR r2 &screen_x
+	STR r3 &screen_y
+	RTS
+
+label FUNCTION_std::blit_R
+	LDR r0 &screen_color
+	LDR r2 &screen_x
+	LDR r3 &screen_y
+	ADI r2 #1
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r3 #1
+	DRW
+	ADI r2 #4
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	DRW
+	ADI r3 #65535
+	ADI r2 #65535
+	DRW
+	ADI r2 #65535
+	DRW
+	ADI r2 #65535
+	DRW
+	ADI r3 #3
+	DRW
+	ADI r2 #1
+	DRW
+	ADI r2 #1
+	DRW
+	ADI r2 #3
+	ADI r3 #65535
+	ADI r3 #65535
+	ADI r3 #65535
+	ADI r3 #65535
+	STR r2 &screen_x
+	STR r3 &screen_y
+	RTS
+
+label FUNCTION_std::blit_SPACE
+	LDR r0 &screen_color
+	LDR r2 &screen_x
+	LDR r3 &screen_y
+	ADI r2 #7
+	STR r2 &screen_x
+	STR r3 &screen_y
+	RTS
+
 label MULTIPLICATION_SUBROUTINE
 	MOV r2 r0
 	LDI r0 #0
@@ -449,9 +1446,32 @@ label FUNCTION_std::drawToScreen
 	var screen_x
 	var screen_y
 	var current_rng_state
-	var x
-	var y
+	var GREEN
+	var BACKGROUND_COLOR
+	var WALL_COLOR
+	var RED
+	var UP
+	var DOWN
+	var LEFT
+	var RIGHT
+	var game_over
+	var head_index
+	var tail_index
 	var index
-	var num_chars
-	var color
-	var max_color
+	var apple_cool_down
+	var pixel_x
+	var pixel_y
+	var apples_x[32]
+	var apples_y[32]
+	var input
+	var delay
+	var curr_direction
+	var curr_x
+	var curr_y
+	var this_x
+	var this_y
+	var appl_x
+	var appl_y
+	var snake_body_x[1024]
+	var snake_body_y[1024]
+	var text_color

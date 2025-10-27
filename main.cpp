@@ -9,6 +9,8 @@
 #include <cctype>
 #include <iomanip>
 
+#include "IntelHex.h"
+
 struct SourceLine {
 	unsigned int memoryAddress = 0;
 	unsigned int memorySize = 0;
@@ -409,7 +411,7 @@ int main() {
 	}
 
 	std::ofstream out("compiled_binary.bin", std::ios::binary);
-	std::ofstream textOut("memory_init.hex");
+	std::ofstream textOut("memory_init.txt");
 	for (SourceLine& line : sourceLines) {
 		assert(line.type != "null");
 		assert(sizeof(unsigned short) == 2);
@@ -430,7 +432,7 @@ int main() {
 			if (line.inst == "SUB") { machineCode += 0b0000101000000000; textOut << "0A"; }
 			if (line.inst == "AND") { machineCode += 0b0000101100000000; textOut << "0B"; }
 			if (line.inst == "ORR") { machineCode += 0b0000110000000000; textOut << "0C"; }
-			if (line.inst == "XOR") { machineCode += 0b0000110100000000; textOut << "0E"; }
+			if (line.inst == "XOR") { machineCode += 0b0000110100000000; textOut << "0D"; }
 			if (line.inst == "CMP") { machineCode += 0b0000111000000000; textOut << "0E"; }
 			if (line.inst == "KIN") { machineCode += 0b0000111100000000; textOut << "0F"; }
 			if (line.inst == "DRW") { machineCode += 0b0001000000000000; textOut << "10"; }
@@ -515,6 +517,8 @@ int main() {
 			continue;
 	}
 
+	textOut.close();
+	build_intel_hex("memory_init.txt", "memory_init.hex");
 	return 0;
 }
 

@@ -127,12 +127,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="compiled_binary.bin" />
-    <None Include="memory_init.hex" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="assembly.txt" />
-    <Text Include="compiled_snake.txt" />
-    <Text Include="snake.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IntelHex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
